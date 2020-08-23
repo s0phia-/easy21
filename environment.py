@@ -1,61 +1,73 @@
 import numpy as np
-from config import draw_probs, deck, hit, stick
 
+deck = range(1,11)
+actions = (hit, stick) = (1, 0)
 
-def draw_number(deck: range = deck):
-    number = np.random.choice(deck)
-    return(number)
+player_range = range(1,22)
+dealer_range = range(1,11)
 
+state_space = (len(player_range), len(dealer_range), len(actions))
 
-def draw_card(probs_cols: dict = draw_probs):
-    # potential card colours and respective probabilities of being drawn
-    colors = list(probs_cols.keys())
-    probs = [probs_cols.get(x)[0] for x in colors]
-    # draw color and number at random
-    colour = np.random.choice(colors, p = probs)
-    number = draw_number()
-    # get and apply colour multiplier
-    value = probs_cols.get(colour)[1]
-    number = number * value
-    return(number)
-    
+draw_probs = {'black': (2/3, 1),
+              'red': (1/3, -1)}
+terminal = "terminal"
 
-def bust(agent):
-    if agent >21 | agent <1:
-        return(True)
-    else:
-        return(False)
-        
-        
 class Easy21:
     
+    @staticmethod    
+    def draw_number(deck: range = deck):
+        number = np.random.choice(deck)
+        return(number)  
+        
     def __init__(self):
-        self.player = draw_number()
-        self.dealer = draw_number()
+        self.player = Easy21.draw_number()
+        self.dealer = Easy21.draw_number()
         self.reward = 0
         self.terminal = False
+        self.state = (self.player, self.dealer)
+        
+    @staticmethod
+    def draw_card(probs_cols: dict = draw_probs):
+        # potential card colours and respective probabilities of being drawn
+        colors = list(probs_cols.keys())
+        probs = [probs_cols.get(x)[0] for x in colors]
+        # draw color and number at random
+        colour = np.random.choice(colors, p = probs)
+        number = Easy21.draw_number()
+        # get and apply colour multiplier
+        value = probs_cols.get(colour)[1]
+        number = number * value
+        return(number)
 
-    def dealer_strategy(self):
+    @staticmethod
+    def bust(agent):
+        if (agent < 1 or agent > 21):
+            return True
+        else: return False
+        
+    def dealer_strategy_17(self):
         if self.dealer < 17 and self.dealer > 0:
             return(hit)
         else:
             return(stick)
         
-    def step(self, action):
-        assert self.terminal == False
+    def step(self, action, terminal = terminal, dealer_strategy = dealer_strategy_17):
+        assert self.state != terminal
         if action == hit:
-            self.player += draw_card()
-            if bust(self.player):
-                self.terminal = True
+            self.player += Easy21.draw_card()
+            self.state = (self.player, self.dealer)
+            if Easy21.bust(self.player):
+                self.state = terminal
                 self.reward = -1
         elif action == stick:
             for turns in range(1,1000):
-                if self.dealer_strategy() == hit:
-                    self.dealer += draw_card()
+                if dealer_strategy(self) == hit:
+                    self.dealer += Easy21.draw_card()
+                    self.state = (self.player, self.dealer)
                 else: 
-                    self.terminal = True
+                    self.state = terminal
                     break
-            if bust(self.dealer):
+            if Easy21.bust(self.dealer):
                 self.reward = 1
             elif self.player == self.dealer:
                 self.reward = 0
@@ -65,8 +77,4 @@ class Easy21:
                 self.reward = 1
         else:
             raise ValueError("Action not recognised")
-        if self.terminal:
-            self.state = "terminal"
-        else:
-            state = (self.player, self.dealer)
-        return(state, self.reward)
+        return(self.state, self.reward)
