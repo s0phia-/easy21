@@ -1,48 +1,46 @@
-from functions import *
-from game import *
+import numpy as np
+import random
 
-def sarsa_lambda(max_steps_per_episodes = 100, episodes = 10000, gamma = 1, 
-                 actions = ['hit', 'stick'], lbda = 0.5):
-        N0 = 100
-        Qsa = init_Msa()
-        Nsa = init_Msa()
-        player_hand = np.arange(1,22,1)
-        dealer_hand = np.arange(1,11,1)
-        states = tuple(itertools.product(player_hand, dealer_hand)) + ("terminal",)
-        for episodes in range(0,episodes):
-            Esa = init_Msa()
-            state = (start_draw(), start_draw())
-            action = random.choice(list(actions))
-            #state_actions = set()
-            for one_step in range(0,max_steps_per_episodes):
-                # update N(S,A)
-                update_N(Nsa, state, action)    
-                Ns = sum(Nsa.get((state, i)) for i in actions)
-                #state_actions.add(tuple([player, dealer, action]))
-                # take one step
-                state_prime, reward = step(action, state)
-                # get epsilon and epsilon greedy action
-                epsilon = N0/(N0 + Ns)
-                # choose A'
-                action_prime = ep_greedy(epsilon, actions, Qsa,
-                               state_prime)  
-                Q = Qsa.get((state, action))
-                Q_prime = Qsa.get((state_prime, action_prime))
-                delta = reward + gamma*(Q_prime - Q)
-                update_N(Esa, state, action)
-                alpha = 1/Nsa.get((state, action))
-                for each_state in states:
-                    for each_action in actions:
-                        Q = Qsa.get((each_state, each_action))
-                        E = Esa.get((each_state, each_action))
-                        Qsa.update({(each_state, each_action) : Q + alpha * delta * E})
-                        Esa.update({(each_state, each_action): gamma * lbda * E})
-                state = state_prime 
-                action = action_prime
-                # if state is terminal, end episode
-                if state == "terminal":
-                    break
-        return(Qsa)
+from environment import state_space, actions, Easy21, terminal
+from utils import ep_greedy
 
-Qsa = sarsa_lambda()              
-                
+class Sarsa:
+    def __init__(self, lmbda = 0.5, env = Easy21, max_steps = 100,\
+                 episodes = 10000, gamma = 1, N_0 = 100, state_space = state_space):
+        self.lmbda = lmbda
+        self.env = env
+        self.max_steps = max_steps
+        self.episodes = episodes
+        self.gamma = gamma
+        self.N_0 = N_0
+        self.state_space = state_space
+        
+    def learn(self, actions = actions, terminal = terminal):
+       N = np.zeros(self.state_space)
+       Q = np.zeros(self.state_space)
+       for _ in range(0, self.episodes):
+           game = self.env()
+           state = game.state
+           E = np.zeros(self.state_space)
+           action = random.choice(actions)
+           for _ in range(0, self.max_steps):
+               state_prime, reward = game.step(action)
+               player, dealer = state
+               index = player-1, dealer - 1, action
+               N[index] += 1
+               if state_prime == terminal:
+                   delta = reward + self.lmbda * (-Q[index])
+               else:
+                   action_prime = ep_greedy(N, Q, state_prime, self.N_0)
+                   player_prime, dealer_prime = state_prime
+                   index_prime = player_prime - 1, dealer_prime - 1, action_prime
+                   delta = reward + self.lmbda * (Q[index_prime] - Q[index])
+               E[index] += 1
+               alpha = 1/N[index]
+               Q += alpha * delta * E
+               E *= self.lmbda * self.gamma
+               if state_prime == terminal:
+                   break
+               state, action = state_prime, action_prime
+               
+       return Q
