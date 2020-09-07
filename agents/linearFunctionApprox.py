@@ -7,10 +7,6 @@ coarse_code = {'player' : ((1,6), (4,9), (7,12), (10,15), (13,18), (16,21)),\
                'dealer' : ((1,4),(4,7), (7,10)),\
                'action' : (0,1)}
 
-
-
-# theta is weights
-
 class FunctionApprox:
     def __init__(self, env = Easy21, coarse_code = coarse_code, max_steps = 100,\
                  no_episodes = 10000,
@@ -22,8 +18,8 @@ class FunctionApprox:
         self.actions = actions
         self.max_steps = max_steps
         
-    @staticmethod
-    def sigma(state, action, coarse = self.coarse_code):
+    def sigma(self, state, action):
+        coarse = self.coarse_code
         player, dealer = state
         # create 1 by n array of 0s, where n is the number of dummy vars in the 
         # coarse code
@@ -46,22 +42,31 @@ class FunctionApprox:
     
     def learn(self):
         # initialise weights arbitratily 
-        theta = (np.random.rand(self.weight_legnth) - 0.5)/10
+        theta = (np.random.rand(self.weight_length) - 0.5)/10
         # loop through episodes
         for _ in range(0, self.episodes):
+            # start game
             game = self.env()
             state = game.state
+            player, dealer = state
+            # initialise eligibility trace
             E = np.zeros(self.weight_length)
+            # first action will be random due to ep greedy
             action = random.choice(self.actions)
             for _ in range(0, self.max_steps):
+                # take action and observe new state and reward
                 state_prime, reward = game.step(action)
-                player, dealer = state
+                player_prime, dealer_prime = state_prime
+                
                 # here is where things start to get tricky... how do i do ep greedy without Q? I'll 
                 # figure it out, I'm a smart gal.
+                # select action a′ (using a policy based on Q_w)
+                action_prime = 0
 
 
 
 
+# theta is weights
 
 
 #We now consider a simple value function approximator using coarse coding. Use
