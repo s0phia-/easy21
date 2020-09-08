@@ -16,5 +16,10 @@ def ep_greedy(Nsa, Qsa, state, N_0, actions = actions):
         action = random.choice(actions)
     return(action)
     
-    
-    
+# version of epsilon greedy to work with function approximators
+def fa_ep_greedy(state, weights, phi_ftn, epsilon, actions = actions) :
+    if np.random.rand() < (1 - epsilon):
+        action = np.argmax(phi_ftn(state, a)*weights for a in actions)
+    else:
+        action = np.random.choice(actions)
+    return(action)  
