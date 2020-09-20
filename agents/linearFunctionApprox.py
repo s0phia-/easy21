@@ -10,12 +10,12 @@ epsilon = 0.05
 
 class FunctionApprox:
     def __init__(self, lmbda, env = Easy21, coarse_code = coarse_code, max_steps = 100,\
-                 no_episodes = 10000, actions = actions, state_space = state_space,
+                 episodes = 10000, actions = actions, state_space = state_space,
                  gamma = 1, epsilon = epsilon):
         self.env = env
         self.coarse_code = coarse_code
         self.weight_length = np.prod([len(coarse_code[k]) for k in coarse_code.keys()])
-        self.episodes = no_episodes
+        self.episodes = episodes
         self.actions = actions
         self.max_steps = max_steps
         self.lmbda = lmbda
@@ -48,7 +48,7 @@ class FunctionApprox:
     def learn(self, alpha = 0.01, terminal = terminal):
         lmbda = self.lmbda
         # initialise weights arbitratily 
-        theta = (np.random.rand(self.weight_length) - 0.5)/10
+        theta = (np.random.rand(self.weight_length) - 0.5)/1000
         # loop through episodes
         for _ in range(0, self.episodes):
             # start game
@@ -58,15 +58,15 @@ class FunctionApprox:
             action = random.choice(self.actions)
             # calculate value of state action pair 
             Q_w = np.dot(self.phi(state, action),theta)
+            # initialise eligibility trace as 0s
+            E = np.zeros(self.weight_length)
             # to prevent infinite loop
             for _ in range(0, self.max_steps):
                 # take action and observe new state and reward
                 state_prime, reward = game.step(action)
-                # initialise eligibility trace as 0s
-                E = np.zeros(self.weight_length)
                 if state_prime == terminal:
                     # can update delta with value of Q_prime at that state as 0
-                    delta = reward + (lmbda * Q_w)
+                    delta = reward - (self.gamma * Q_w)
                 else:
                     # select action a′ (using a policy based on Q_w)
                     action_prime = fa_ep_greedy(state_prime, 
@@ -76,15 +76,16 @@ class FunctionApprox:
                     
                     # calculate value of state_prime action_prime pair 
                     Q_w_prime = np.dot(self.phi(state_prime, action_prime),theta)
-                    # delta is update of Q, weighted by alpha.
+                    # delta is update of Q, weighted by gamma.
                     # this is gradient descent
-                    delta = reward + alpha * (Q_w_prime - Q_w)
+                    delta = self.gamma * (Q_w_prime - Q_w)
                 # add current state to eligibility trace
-                E += self.phi(state, action)
+                #E += self.phi(state, action)
+                E = (self.gamma * lmbda * E) + self.phi(state, action)
                 # update weights 
-                theta += alpha * delta * E   
+                theta += (alpha * delta * E)
                 # discount eligibility trace by lambda and gamma
-                E *= self.lmbda * self.gamma
+                #E *= self.lmbda * self.gamma
                 if state_prime == terminal:         
                     break
                 state, action = state_prime, action_prime
