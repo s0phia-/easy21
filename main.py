@@ -28,7 +28,6 @@ if __name__ == "__main__":
                                     q_star = Q_star)
                 # learn 
                 q, error = x.learn()
-                plot(q, player_range,dealer_range)
                 # add learning curve to plot for this lambda
                 ax1.plot(range(len(error)), error, label = 
                          round(lmbda,1))
