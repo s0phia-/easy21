@@ -1,7 +1,18 @@
 import numpy as np
 
 deck = range(1,11)
-actions = (hit, stick) = (1, 0)
+# a long explanation on why hit = 0, even though hit obviously has 1 energy:
+#
+# when we decide on an action, if we are exploiting (rather than exploring),
+# we use argmax to pick the action with the highest value. By construction,
+# if the values are equal then argmax will return the lowest index. Therefore
+# when the values are equal, hit will be chosen by default. This is the preferred
+# behaviour, because it encourages the agent to visit states that *require* it
+# to hit, i.e. all states where the player hand is above 10. 
+# I could have randomized this, but I wanted the agent to go to these states
+# (and it's only an issue when the states have equal value)
+
+actions = (hit, stick) = (0, 1)
 
 player_range = range(1,22)
 dealer_range = range(1,11)
@@ -46,7 +57,7 @@ class Easy21:
         else: return False
         
     def dealer_strategy_17(self):
-        if self.dealer < 17 and self.dealer > 0:
+        if self.dealer <= 17 and self.dealer > 0:
             return(hit)
         else:
             return(stick)
@@ -73,7 +84,7 @@ class Easy21:
                 self.reward = 0
             elif self.player < self.dealer:
                 self.reward = -1
-            elif self.player < self.dealer:
+            elif self.player > self.dealer:
                 self.reward = 1
         else:
             raise ValueError("Action not recognised")

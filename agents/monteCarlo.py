@@ -15,6 +15,7 @@ class MonteCarlo:
     def learn(self, state_space = state_space, terminal = terminal):
         N = np.zeros(self.state_space)
         Q = np.zeros(self.state_space)
+        visits = np.zeros(self.state_space)
         for episode in range(0, self.no_episodes):
             game = self.env()
             state_actions_visited = []
@@ -31,5 +32,6 @@ class MonteCarlo:
                 N[index] += 1
                 alpha = 1/N[index]
                 Q[index] += alpha * (reward - Q[index])
-        return Q
+                visits[index] += 1
+        return Q, visits
             
