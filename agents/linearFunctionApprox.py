@@ -1,17 +1,16 @@
 import numpy as np
 import random 
 from environment import state_space, actions, Easy21, terminal, player_range, dealer_range
-from utils import fa_ep_greedy, expand_coarse_code
+from utils import fa_ep_greedy, expand_coarse_code, mse
 
 coarse_code = {'player' : ((1,6), (4,9), (7,12), (10,15), (13,18), (16,21)),\
                'dealer' : ((1,4),(4,7), (7,10)),\
                'action' : (0, 1)}
-epsilon = 0.05
 
 class FunctionApprox:
     def __init__(self, lmbda, env = Easy21, coarse_code = coarse_code, max_steps = 100,\
                  episodes = 10000, actions = actions, state_space = state_space,
-                 gamma = 1, epsilon = epsilon):
+                 gamma = 1, epsilon = 0.05, q_star = None):
         self.env = env
         self.coarse_code = coarse_code
         self.weight_length = np.prod([len(coarse_code[k]) for k in coarse_code.keys()])
@@ -22,6 +21,11 @@ class FunctionApprox:
         self.state_space = state_space
         self.gamma = gamma
         self.epsilon = epsilon
+        self.q_star = q_star
+        if q_star is None:
+            self.save_error = False
+        else:
+            self.save_error = True
         
     def phi(self, state, action):
         coarse = self.coarse_code
@@ -48,7 +52,10 @@ class FunctionApprox:
     def learn(self, alpha = 0.01, terminal = terminal):
         lmbda = self.lmbda
         # initialise weights arbitratily 
-        theta = (np.random.rand(self.weight_length) - 0.5)/1000
+        theta = np.random.rand(self.weight_length)
+        # if we are saving the MSE, initialise a list to save it in
+        if self.save_error == True:
+            self.error = []
         # loop through episodes
         for _ in range(0, self.episodes):
             # start game
@@ -66,7 +73,7 @@ class FunctionApprox:
                 state_prime, reward = game.step(action)
                 if state_prime == terminal:
                     # can update delta with value of Q_prime at that state as 0
-                    delta = reward - (self.gamma * Q_w)
+                    delta = reward - Q_w
                 else:
                     # select action a′ (using a policy based on Q_w)
                     action_prime = fa_ep_greedy(state_prime, 
@@ -76,9 +83,9 @@ class FunctionApprox:
                     
                     # calculate value of state_prime action_prime pair 
                     Q_w_prime = np.dot(self.phi(state_prime, action_prime),theta)
-                    # delta is update of Q, weighted by gamma.
+                    # delta is update of Q     , weighted by gamma.
                     # this is gradient descent
-                    delta = self.gamma * (Q_w_prime - Q_w)
+                    delta = reward + Q_w_prime - Q_w
                 # add current state to eligibility trace
                 #E += self.phi(state, action)
                 E = (self.gamma * lmbda * E) + self.phi(state, action)
@@ -86,12 +93,23 @@ class FunctionApprox:
                 theta += (alpha * delta * E)
                 # discount eligibility trace by lambda and gamma
                 #E *= self.lmbda * self.gamma
+                
                 if state_prime == terminal:         
                     break
                 state, action = state_prime, action_prime
                 Q_w = Q_w_prime
+            if self.save_error == True:
+                Q = expand_coarse_code(self.coarse_code, p_range = player_range,
+                           d_range = dealer_range, a_range = actions,
+                           encoding = self.phi, state_space_shape = self.state_space,
+                           weights = theta)
+                mse_ep = mse(Q, self.q_star)
+                self.error.append(mse_ep)
         Q = expand_coarse_code(self.coarse_code, p_range = player_range,
                                d_range = dealer_range, a_range = actions,
                                encoding = self.phi, state_space_shape = self.state_space,
                                weights = theta)
-        return(Q)
+        if self.save_error == True:
+            return(Q, self.error)
+        else:
+            return(Q)

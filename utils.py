@@ -11,7 +11,7 @@ def ep_greedy(Nsa, Qsa, state, N_0, actions = actions):
     # with probability 1-epsilon, pick action using state action values
     if random.random() > epsilon:
         action = np.argmax(Qsa[player-1, dealer-1, :])
-    # with probability epsilon, pick randomly
+    # with probability epsilon, explore
     else:
         action = random.choice(actions)
     return(action)
