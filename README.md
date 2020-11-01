@@ -10,11 +10,13 @@ A Monte Carlo control algorithm is applied to the easy21 game for 10mil episodes
 
 Perhaps less intuitively, the states where the player has a lower hand decrease in value as the dealer's hand increases in value. The explanation here lies in the game rules that gives cards a negative value with probability 1/3, and that a hand sum below 1 is bust. Thus when the dealer has a lower value hand, they have a greater chance of going bust - in fact, in these low hand sum states the agent often chooses to stick with a very low value hand rather than risk going bust - and hope that the dealer goes bust instead.
 
-
+## TD Learning with Sarsa
 
 ![Monte Carlo Plot1](/plots/Sarsa_episode_error.png)
 
 ![Monte Carlo Plot2](/plots/Sarsalambda_error.png)
+
+## Linear Function Value Approximation
 
 ![Monte Carlo Plot3](/plots/FunctionApprox_episode_error.png)
 
