@@ -57,7 +57,7 @@ class Easy21:
         else: return False
         
     def dealer_strategy_17(self):
-        if self.dealer <= 17 and self.dealer > 0:
+        if self.dealer < 17 and self.dealer > 0:
             return(hit)
         else:
             return(stick)

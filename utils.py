@@ -19,9 +19,11 @@ def ep_greedy(Nsa, Qsa, state, N_0, actions = actions):
 # version of epsilon greedy to work with function approximators
 def fa_ep_greedy(state, weights, phi_ftn, epsilon, actions = actions):
     if random.random() > epsilon:
+        # exploit
         action_values = [np.dot(phi_ftn(state, a),weights) for a in actions]
         action = np.argmax(action_values)
     else:
+        # explore
         action = np.random.choice(actions)
     return(action)  
 
