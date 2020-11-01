@@ -37,15 +37,15 @@ class Sarsa:
                index = player-1, dealer - 1, action
                N[index] += 1
                if state_prime == terminal:
-                   delta = reward - Q[index]
+                   td_error = reward - Q[index]
                else:
                    action_prime = ep_greedy(N, Q, state_prime, self.N_0)
                    player_prime, dealer_prime = state_prime
                    index_prime = player_prime - 1, dealer_prime - 1, action_prime
-                   delta = reward + (Q[index_prime] - Q[index])
+                   td_error = reward + (Q[index_prime] - Q[index])
                E[index] += 1
                alpha = 1/N[index]
-               Q += alpha * delta * E
+               Q += alpha * td_error * E
                E *= self.lmbda * self.gamma
                if state_prime == terminal:
                    break
