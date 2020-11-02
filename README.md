@@ -49,3 +49,21 @@ A linear function approximator is used to estimate the action value function. Wi
 ![LF episode](/plots/FunctionApprox_episode_error.png)
 
 ![LF lambda](/plots/FunctionApproxlambda_error.png)
+
+## Discussion Topics
+
+### What are the pros and cons of bootstrapping in Easy21?
+
+### Would you expect bootstrapping to help more in blackjack or Easy21?
+
+### What are the pros and cons of function approximation in Easy21?
+
+#### Pros:
+Function approximation achieved a low MSE after significantly fewer episodes than Sarsa
+
+#### Cons:
+Easy21 has a reasonably small number of states, 
+### How would you modify the function approximator suggested in this section to get better results in Easy21?
+In the plot above, we can see the function approximator is converging to around 0.1 MSE, a higher MSE than the TD learning approach achieved after the same number of episodes. With coarse coding, at the optimal solution a slight shift in the value of a feature to more closely fit one state will necessarily worsen the error at another state. Thus a less-coarse coarse-coding would help to reduce MSE. 
+
+Furthermore, with Monte Carlo and Sarsa, the step size (alpha) was dependent on the number of times each step had been visited. With the linear function approximator, we held alpha constant, which may have caused the function approximator to jump around the true value function. An improvement might be to use a similarly varying step size.
