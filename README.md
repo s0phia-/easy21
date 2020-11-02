@@ -1,6 +1,6 @@
 # Using Reinforcement Learning (RL) to play Easy21 
 
-Easy21 is a variant of the game blackjack, introduced in the [coursework](https://www.davidsilver.uk/wp-content/uploads/2020/03/Easy21-Johannes.pdf) for the Deepmind X UCL [Reinforcement Learning Course](https://deepmind.com/learning-resources/-introduction-reinforcement-learning-david-silver) run by David Silver. This project provides solutions to all questions in the coursework.
+Easy21 is a variant of the game blackjack, introduced in the [coursework](https://www.davidsilver.uk/wp-content/uploads/2020/03/Easy21-Johannes.pdf) for the Deepmind X UCL [Reinforcement Learning course](https://deepmind.com/learning-resources/-introduction-reinforcement-learning-david-silver) run by David Silver. This project provides solutions to all questions in the coursework.
 
 The rules of the game are:
 
@@ -32,7 +32,7 @@ A Monte Carlo control algorithm is applied to the easy21 game for 10mil episodes
 
 Perhaps less intuitively, the states where the dealer has a high hand total have the lowest value, even when the player has a much higher hand total. The explanation here lies in the game rules that give cards a negative value with probability 1/3, and the rule that a hand sum below 1 is bust. Thus when the dealer has a low value hand, they have a greater chance of going bust, and therefore ensuring a win for the agent. This risk of going negative has another affect on agent behaviour -- the agent prefers to stick in states with a very low player hand total. The agent sees that the risk of going bust is too high, and prefers to stick and hope that the dealer will go bust instead.
 
-Monte Carlo control plays out whole episodes without bootstrapping to obtain a value function. In this example, episodes tend to be short in length. However for games with lengthly episodes Monte Carlo control takes a very long time to learn or may be entirely unsuitable. 
+Monte Carlo control plays out whole episodes without bootstrapping to obtain the value function. In this example, episodes tend to be short in length. However for games with lengthly episodes Monte Carlo control takes a very long time to learn or may be entirely unsuitable. 
 
 ## TD Learning with Sarsa
 
@@ -44,7 +44,7 @@ Sarsa lambda is used to learn the value function, with lambda = 0.0, 0.1,...,1.0
 
 ## Linear Function Value Approximation
 
-A linear function approximator is used to estimate the action value function. With previous agents, the state action value is found for every single state. Here, the state space is compressed using coarse coding, so that the value of features, rather than states, is learned. Similar to Sarsa, the plots show the learning curve over 10,000 episodes, and the final MSE for each lambda value.
+A linear function approximator is used to estimate the value function. With previous agents, the state action value is found for every single state. However here the state space is compressed using coarse coding so that the value of features - rather than states - is learned. Similarly to Sarsa, the plots show the learning curve over 10,000 episodes and the final MSE for each lambda value.
 
 ![LF episode](/plots/FunctionApprox_episode_error.png)
 
@@ -55,13 +55,13 @@ A linear function approximator is used to estimate the action value function. Wi
 ### What are the pros and cons of bootstrapping in Easy21?
 
 #### Pros:
-Bootstrapping learns faster, as it allows us to make updates before we reach the end of an episode. 
+Bootstrapping learns faster as it allows us to make updates before we reach the end of an episode. 
 
 #### Cons:
 Bootstrapping reduces variance but introduces bias
 
 ### Would you expect bootstrapping to help more in blackjack or Easy21?
-It really depends how we're representing a game - if we're card counting, then the length of an episode is the time it takes to finish going through a deck of cards, in which case blackjack has significantly longer episodes and could gain a lot more from bootstrapping than Easy21. On the other hand, if our learning agent doesn't want to be kicked out of casinos it's better to represent one round as an episode, and treat the cards in the deck as random. In this case, the lenght of the episode is very short for both blackjack and Easy21, however slightly shorter for blackjack as it doesn't include negative cards. In this case, Easy21 would benefit more from bootstrapping.
+It really depends how we're representing a game - if we're card counting then the length of an episode is the time it takes to finish going through a deck of cards, in which case blackjack has significantly longer episodes and could gain a lot more from bootstrapping than Easy21. On the other hand, if our learning agent doesn't want to be kicked out of casinos it's better to represent one round as an episode, and treat the cards in the deck as random. In this case, the length of an episode is usually very short for both blackjack and Easy21, however slightly shorter for blackjack as it doesn't include negative cards. In this case, Easy21 would benefit more from bootstrapping.
 
 Another difference between the two games is that in Easy21 the dealer's behaviour is fixed, whereas in regular blackjack the players have unknown policies. My hypothesis is that since dealer behaviour is fixed, looking ahead with bootstrapping is a lot more stable for Easy21 than blackjack. However potentially bootstrapping could help address the variance in dealer behaviour in blackjack. Honestly, not sure here.
 
@@ -74,4 +74,4 @@ Function approximation achieved a low MSE after significantly fewer episodes tha
 Fully representing states rather than features of states allows us to get closer to the true value function. Unless all states are fully represented by the features, at the optimal solution a slight shift in the value of a feature to more closely fit one state will necessarily worsen the error at another state. 
 
 ### How would you modify the function approximator suggested in this section to get better results in Easy21?
-With Monte Carlo and Sarsa, the step size (alpha) was dependent on the number of times each step had been visited. With the linear function approximator, we held alpha constant, which may have caused the function approximator to jump around the true value function. Furthermore, a constant small value of alpha will cause very slow progress towards the true value for states that are rarely visited. Thus an improvement could be made by using a varying step size.
+With Monte Carlo and Sarsa, the step size (alpha) was dependent on the number of times each step had been visited. With the linear function approximator, we held alpha constant, which may have caused the function approximator to jump around the true value function. Furthermore, a constant small value of alpha will cause very slow progress towards the true value for states that are rarely visited. Thus an improvement could be made by using a varying alpha as in TD learning and Monte Carlo.
