@@ -32,14 +32,20 @@ A Monte Carlo control algorithm is applied to the easy21 game for 10mil episodes
 
 Perhaps less intuitively, the states where the dealer has a high hand total have the lowest value, even when the player has a much higher hand total. The explanation here lies in the game rules that give cards a negative value with probability 1/3, and the rule that a hand sum below 1 is bust. Thus when the dealer has a low value hand, they have a greater chance of going bust, and therefore ensuring a win for the agent. This risk of going negative has another affect on agent behaviour -- the agent prefers to stick in states with a very low player hand total. The agent sees that the risk of going bust is too high, and prefers to stick and hope that the dealer will go bust instead.
 
+Monte Carlo control plays out whole episodes without bootstrapping to obtain a value function. In this example, episodes tend to be short in length. However for games with lengthly episodes Monte Carlo control takes a very long time to learn or may be entirely unsuitable. 
+
 ## TD Learning with Sarsa
 
-![Monte Carlo Plot1](/plots/Sarsa_episode_error.png)
+Sarsa lambda is used to learn the value function, with lambda = 0.0, 0.1,...,1.0. Plots below show the learning curve for each lambda, and the final mean squared error (MSE) after 10,000 iterations for each lambda.
 
-![Monte Carlo Plot2](/plots/Sarsalambda_error.png)
+![Sarsa episode](/plots/Sarsa_episode_error.png)
+
+![Sarsa lambda](/plots/Sarsalambda_error.png)
 
 ## Linear Function Value Approximation
 
-![Monte Carlo Plot3](/plots/FunctionApprox_episode_error.png)
+A linear function approximator is used to estimate the action value function. With previous agents, the state action value is found for every single state. Here, the state space is compressed using coarse coding, so that the value of features, rather than states, is learned. Similar to Sarsa, the plots show the learning curve over 10,000 episodes, and the final MSE for each lambda value.
 
-![Monte Carlo Plot4](/plots/FunctionApproxlambda_error.png)
+![LF episode](/plots/FunctionApprox_episode_error.png)
+
+![LF lambda](/plots/FunctionApproxlambda_error.png)
