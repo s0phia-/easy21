@@ -54,7 +54,17 @@ A linear function approximator is used to estimate the action value function. Wi
 
 ### What are the pros and cons of bootstrapping in Easy21?
 
+#### Pros:
+Learn faster, as bootstrapping allows us to make updates before we reach the end of the episode
+
+#### Cons:
+Bootstrapping reduces variance but introduces bias
+
+
 ### Would you expect bootstrapping to help more in blackjack or Easy21?
+It really depends how we're representing a game - if we're card counting, then the length of an episode is the time it takes to finish going through a deck of cards, in which case blackjack has significantly longer episodes and could gain a lot more from bootstrapping than Easy21. On the other hand, if our learning agent doesn't want to be kicked out of casinos it's better to represent one round as an episode, and treat the cards in the deck as random. In this case, the lenght of the episode is very short for both blackjack and Easy21, however slightly shorter for blackjack as it doesn't include negative cards. In this case, Easy21 would benefit more from bootstrapping.
+
+Another difference between the two games is that in Easy21 the dealer's behaviour is fixed, whereas in regular blackjack the players have unknown policies. My hypothesis is that since dealer behaviour is fixed, looking ahead with bootstrapping is a lot more stable for Easy21 than blackjack. However potentially bootstrapping could help address the variance in dealer behaviour in blackjack. Honestly, not sure here.
 
 ### What are the pros and cons of function approximation in Easy21?
 
@@ -62,7 +72,8 @@ A linear function approximator is used to estimate the action value function. Wi
 Function approximation achieved a low MSE after significantly fewer episodes than Sarsa
 
 #### Cons:
-Easy21 has a reasonably small number of states, 
+Fully representing states, rather than features of states, will always give at least as good results however may take significantly more time to run. As Easy21 has a reasonably small state space, learning the value of all states can be acheived in reasonable time, so function approximation is not necessary.
+
 ### How would you modify the function approximator suggested in this section to get better results in Easy21?
 In the plot above, we can see the function approximator is converging to around 0.1 MSE, a higher MSE than the TD learning approach achieved after the same number of episodes. With coarse coding, at the optimal solution a slight shift in the value of a feature to more closely fit one state will necessarily worsen the error at another state. Thus a less-coarse coarse-coding would help to reduce MSE. 
 
