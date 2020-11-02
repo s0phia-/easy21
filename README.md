@@ -71,7 +71,7 @@ Another difference between the two games is that in Easy21 the dealer's behaviou
 Function approximation achieved a low MSE after significantly fewer episodes than Sarsa
 
 #### Cons:
-Fully representing states, rather than features of states, will always get at least as close to the true value function, usually closer. Unless the state space is fully represented by the features, at the optimal solution a slight shift in the value of a feature to more closely fit one state will necessarily worsen the error at another state. 
+Fully representing states rather than features of states allows us to get closer to the true value function. Unless the state space is fully represented by the features, at the optimal solution a slight shift in the value of a feature to more closely fit one state will necessarily worsen the error at another state. 
 
 ### How would you modify the function approximator suggested in this section to get better results in Easy21?
 With Monte Carlo and Sarsa, the step size (alpha) was dependent on the number of times each step had been visited. With the linear function approximator, we held alpha constant, which may have caused the function approximator to jump around the true value function. Furthermore, a constant small value of alpha will cause very slow progress towards the true value for states that are rarely visited. Thus an improvement could be made by using a varying step size.
