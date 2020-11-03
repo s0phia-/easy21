@@ -71,7 +71,12 @@ Another difference between the two games is that in Easy21 the dealer's behaviou
 Function approximation achieved a low MSE after significantly fewer episodes than Sarsa
 
 #### Cons:
-Fully representing states rather than features of states allows us to get closer to the true value function. Unless all states are fully represented by the features, at the optimal solution a slight shift in the value of a feature to more closely fit one state will necessarily worsen the error at another state. 
+Coarse coding: Fully representing states rather than features of states allows us to get closer to the true value function. Unless all states are fully represented by the features, at the optimal solution a slight shift in the value of a feature to more closely fit one state will necessarily worsen the error at another state.
+
+Linear function: using a _linear_ function approximator may have been a too simple choice of model here - potentially better results could be achieved with a non-linear/more complex model - the natural choice being a neural network.
+
 
 ### How would you modify the function approximator suggested in this section to get better results in Easy21?
 With Monte Carlo and Sarsa, the step size (alpha) was dependent on the number of times each step had been visited. With the linear function approximator, we held alpha constant, which may have caused the function approximator to jump around the true value function. Furthermore, a constant small value of alpha will cause very slow progress towards the true value for states that are rarely visited. Thus an improvement could be made by using a varying alpha as in TD learning and Monte Carlo.
+
+As mentioned above, a non-linear model such as a neural network could possibly have been used to achieve a closer approximation of the true value function.
